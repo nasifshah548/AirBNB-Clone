@@ -4,6 +4,8 @@ import SearchBox from "./SearchBox";
 import Spinner from "../../utility/Spinner/Spinner";
 import axios from "axios";
 import Cities from "../../utility/City/Cities";
+import Activities from "../../utility/Activity/Activities";
+import Venues from "../../utility/Venue/Venues";
 
 class Home extends Component {
   state = {
@@ -11,6 +13,11 @@ class Home extends Component {
     europeanCities: {},
     asianCities: {},
     exoticCities: {},
+    activities: [],
+    recVenues: {
+      venues: [],
+      header: "",
+    },
   };
   async componentDidMount() {
     const citiesUrl = `${window.apiHost}/cities/recommended`;
@@ -20,7 +27,7 @@ class Home extends Component {
 
     const citiesPromises = [];
 
-    // Maxing the API requests to multiple URLs using Axios
+    // Making the API requests to multiple URLs using Axios
 
     citiesPromises.push(axios.get(citiesUrl));
     citiesPromises.push(axios.get(europeanCitiesUrl));
@@ -41,9 +48,25 @@ class Home extends Component {
         exoticCities,
       });
     });
+
+    const activitiesUrl = `${window.apiHost}/activities/today`;
+    const activities = await axios(activitiesUrl);
+    this.setState({
+      activities: activities.data,
+    });
+
+    const recVenuesUrl = `${window.apiHost}/venues/recommended`;
+    const venues = await axios(recVenuesUrl);
+    this.setState({
+      recVenues: venues.data,
+    });
   }
   render() {
-    if (this.state.cities.length === 0) {
+    if (
+      this.state.cities.length === 0 ||
+      !this.state.recVenues ||
+      !this.state.recVenues.venues
+    ) {
       return <Spinner />;
     }
 
@@ -67,9 +90,21 @@ class Home extends Component {
               />
             </div>
             <div className="col s12">
+              <Activities
+                activities={this.state.activities}
+                header="Today in your area"
+              />
+            </div>
+            <div className="col s12">
               <Cities
                 cities={this.state.europeanCities.cities}
                 header={this.state.europeanCities.header}
+              />
+            </div>
+            <div className="col s12">
+              <Venues
+                venues={this.state.recVenues?.venues || []}
+                header={this.state.recVenues?.header || "Recommended Venues"}
               />
             </div>
             <div className="col s12">

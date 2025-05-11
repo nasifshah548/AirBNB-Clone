@@ -1,0 +1,29 @@
+.venues {
+  padding: 0 15px;
+  margin: 0 auto;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.venues .venue {
+  margin-bottom: 30px;
+}
+
+.venues .venue a {
+  color: #000;
+}
+
+.venues .venue img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 10px;
+}
+
+.venues .venue .location {
+  color: rgb(113, 113, 113) !important;
+}
+
+.venue .material-icons {
+  color: #f00;
+}

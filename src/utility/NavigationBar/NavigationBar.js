@@ -19,7 +19,7 @@ const NavigationBar = () => {
                 <Link to="/">English</Link>
               </li>
               <li>
-                <Link to="/">$ USD</Link>
+                <Link to="/">$ CAD</Link>
               </li>
               <li>
                 <Link to="/">Become a host</Link>
