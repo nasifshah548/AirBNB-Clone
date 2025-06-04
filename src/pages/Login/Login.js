@@ -3,7 +3,9 @@ import "./Login.css";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import openModal from "../../actions/openModal";
+import regAction from "../../actions/regAction";
 import SignUp from "./SignUp";
+import swal from "sweetalert";
 import axios from "axios";
 
 class Login extends Component {
@@ -13,6 +15,11 @@ class Login extends Component {
   };
   changeEmail = (e) => this.setState({ email: e.target.value });
   changePassword = (e) => this.setState({ password: e.target.value });
+  submitLogin = (e) => {
+    e.preventDefault();
+
+    // Need to make an axios request to /users/login
+  };
   render() {
     return (
       <div className="login-form">

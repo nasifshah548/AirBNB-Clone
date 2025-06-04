@@ -153,6 +153,7 @@ class SignUp extends Component {
   }
 }
 
+// mapStateToProps
 function mapStateToProps(state) {
   return {
     auth: state.auth,
