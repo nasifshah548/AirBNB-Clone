@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import openModal from "../../actions/openModal";
+import regAction from "../../actions/regAction";
 import Login from "./Login";
 import "./Login.css";
 import axios from "axios";
@@ -105,6 +106,8 @@ class SignUp extends Component {
           text: "Your account has been created.",
           icon: "success",
         });
+        // Here we call the Register Action (rejAction) to update out Auth reducer
+        this.props.regAction(response.data);
         // Optional: send token to server or store in localStorage
       }
     } catch (err) {
@@ -150,14 +153,21 @@ class SignUp extends Component {
   }
 }
 
+function mapStateToProps(state) {
+  return {
+    auth: state.auth,
+  };
+}
+
 // mapDispatchToProps Function
 function mapDispatchToProps(dispatcher) {
   return bindActionCreators(
     {
       openModal,
+      regAction,
     },
     dispatcher
   );
 }
 
-export default connect(null, mapDispatchToProps)(SignUp);
+export default connect(mapStateToProps, mapDispatchToProps)(SignUp);

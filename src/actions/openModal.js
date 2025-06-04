@@ -1,4 +1,4 @@
-export default (openClose, content) => {
+const openModal = (openClose, content) => {
   return {
     type: "OPEN MODAL",
     payload: {
@@ -7,3 +7,5 @@ export default (openClose, content) => {
     },
   };
 };
+
+export default openModal;

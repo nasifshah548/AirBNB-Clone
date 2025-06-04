@@ -3,12 +3,18 @@ import { useParams } from "react-router-dom";
 import "./SingleFullVenue.css";
 import Point from "./Point";
 import axios from "axios";
+import { connect } from "react-redux";
+import openModal from "../../actions/openModal";
+import { bindActionCreators } from "redux";
+import Login from "../Login/Login";
+import { DateTime } from "luxon";
+import swal from "sweetalert";
 
-const SingleFullVenue = () => {
+const SingleFullVenue = (props) => {
   const { vid } = useParams();
   const [singleVenue, setSingleVenue] = useState({});
   const [points, setPoints] = useState([]);
-  const [numberOfGuests, setNumberOfGuests] = useState(1); // Default to 1 guest
+  const [numberOfGuests, setNumberOfGuests] = useState(1);
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
 
@@ -21,12 +27,12 @@ const SingleFullVenue = () => {
         setSingleVenue(venue);
 
         const pointsUrl = `${window.apiHost}/points/get`;
-        const pointsAxiosResponse = await axios.get(pointsUrl);
+        const pointsResponse = await axios.get(pointsUrl);
 
         const pointElements = venue.points
           ?.split(",")
           .map((x, index) => (
-            <Point key={index} pointDesc={pointsAxiosResponse.data} point={x} />
+            <Point key={index} pointDesc={pointsResponse.data} point={x} />
           ));
 
         setPoints(pointElements);
@@ -38,23 +44,46 @@ const SingleFullVenue = () => {
     fetchVenue();
   }, [vid]);
 
-  const changeNumberOfGuests = (e) => {
-    setNumberOfGuests(Number(e.target.value)); // number instead of object
-  };
-
-  const changeCheckIn = (e) => {
-    setCheckIn(e.target.value); // simple string
-  };
-
-  const changeCheckOut = (e) => {
-    setCheckOut(e.target.value);
-  };
+  const changeNumberOfGuests = (e) => setNumberOfGuests(Number(e.target.value));
+  const changeCheckIn = (e) => setCheckIn(e.target.value);
+  const changeCheckOut = (e) => setCheckOut(e.target.value);
 
   const reserveNow = () => {
     console.log("Reserve clicked!");
     console.log("Guests:", numberOfGuests);
     console.log("Check-In:", checkIn);
     console.log("Check-Out:", checkOut);
+
+    const checkInDate = DateTime.fromISO(checkIn);
+    const checkOutDate = DateTime.fromISO(checkOut);
+
+    if (!checkInDate.isValid || !checkOutDate.isValid) {
+      swal({
+        title: "Please make sure that the dates entered are valid!",
+        icon: "error",
+      });
+      return;
+    }
+
+    const diffDays = Math.ceil(checkOutDate.diff(checkInDate, "days").days);
+
+    if (diffDays < 1) {
+      swal({
+        title: "Check Out date must be after Check In date",
+        icon: "error",
+      });
+      return;
+    }
+
+    const pricePerNight = singleVenue.pricePerNight;
+    const totalPrice = diffDays * pricePerNight;
+
+    swal({
+      title: `Total price: C$${totalPrice.toFixed(2)} for ${diffDays} night(s)`,
+      icon: "info",
+    });
+
+    // Continue to booking flow...
   };
 
   return (
@@ -99,10 +128,24 @@ const SingleFullVenue = () => {
                 ))}
               </select>
             </div>
-            <div className="col s12 center">
-              <button onClick={reserveNow} className="btn red accent-2">
-                Reserve
-              </button>
+            <div className="col s12 center" style={{ marginTop: "20px" }}>
+              {props.auth?.token ? (
+                <button onClick={reserveNow} className="btn red accent-2">
+                  Reserve
+                </button>
+              ) : (
+                <div>
+                  You must{" "}
+                  <span
+                    className="text-link"
+                    style={{ color: "blue", cursor: "pointer" }}
+                    onClick={() => props.openModal("open", <Login />)}
+                  >
+                    log in
+                  </span>{" "}
+                  to reserve!
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -111,4 +154,19 @@ const SingleFullVenue = () => {
   );
 };
 
-export default SingleFullVenue;
+function mapStateToProps(state) {
+  return {
+    auth: state.auth,
+  };
+}
+
+function mapDispatchToProps(dispatch) {
+  return bindActionCreators(
+    {
+      openModal,
+    },
+    dispatch
+  );
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(SingleFullVenue);

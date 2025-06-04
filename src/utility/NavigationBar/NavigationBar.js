@@ -1,15 +1,20 @@
-import React from "react";
+import React, { useEffect } from "react";
 import "./NavigationBar.css";
 import { Link, useLocation } from "react-router-dom";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import openModal from "../../actions/openModal";
+import logOutAction from "../../actions/logOutAction";
 import Login from "../../pages/Login/Login";
 import SignUp from "../../pages/Login/SignUp";
 
-const NavigationBar = (props) => {
+const NavigationBar = ({ auth, openModal, logOutAction }) => {
   const location = useLocation();
-  let navColour = location.pathname !== "/" ? "black" : "transparent";
+  const navColour = location.pathname !== "/" ? "black" : "transparent";
+
+  useEffect(() => {
+    openModal("closed", "");
+  }, [auth.token, openModal]); // Run this effect only when auth.token changes
 
   return (
     <div className="container-fluid nav">
@@ -32,24 +37,31 @@ const NavigationBar = (props) => {
               <li>
                 <Link to="/">Help</Link>
               </li>
-              <li>
-                <Link
-                  className="login-signup"
-                  onClick={() => {
-                    props.openModal("open", <SignUp />);
-                  }}
-                >
-                  Sign Up
-                </Link>
-                <Link
-                  className="login-signup"
-                  onClick={() => {
-                    props.openModal("open", <Login />);
-                  }}
-                >
-                  Log in
-                </Link>
-              </li>
+              {auth?.email ? (
+                <>
+                  <li>Hello, {auth.email}</li>
+                  <li onClick={logOutAction}>Logout</li>
+                </>
+              ) : (
+                <>
+                  <li>
+                    <Link
+                      className="login-signup"
+                      onClick={() => openModal("open", <SignUp />)}
+                    >
+                      Sign Up
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      className="login-signup"
+                      onClick={() => openModal("open", <Login />)}
+                    >
+                      Log in
+                    </Link>
+                  </li>
+                </>
+              )}
             </ul>
           </div>
         </nav>
@@ -58,10 +70,20 @@ const NavigationBar = (props) => {
   );
 };
 
-function mapDispatchToProps(dispatcher) {
-  return bindActionCreators({
-    openModal: openModal,
-  });
+function mapStateToProps(state) {
+  return {
+    auth: state.auth,
+  };
 }
 
-export default connect(null, mapDispatchToProps)(NavigationBar);
+function mapDispatchToProps(dispatch) {
+  return bindActionCreators(
+    {
+      openModal,
+      logOutAction,
+    },
+    dispatch
+  );
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(NavigationBar);
