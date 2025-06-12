@@ -36,7 +36,7 @@ const persistor = persistStore(theStore);
 
 root.render(
   <Provider store={theStore}>
-    <PersistGate loading={Spinner} persistor={persistor}>
+    <PersistGate loading={<Spinner />} persistor={persistor}>
       <App />
     </PersistGate>
   </Provider>

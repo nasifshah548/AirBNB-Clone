@@ -6,6 +6,7 @@ import Home from "./pages/Home/Home";
 import SingleFullVenue from "./pages/SingleFullVenue/SingleFullVenue";
 import Modal from "./utility/Modal/Modal";
 import CityVenues from "./pages/CityVenues/CityVenues";
+import PaymentSuccess from "./pages/PaymentSuccess/PaymentSuccess";
 
 class App extends Component {
   render() {
@@ -16,6 +17,11 @@ class App extends Component {
           <Route path="/" element={<Home />} />
           <Route exact path="/venue/:vid" element={<SingleFullVenue />} />
           <Route exact path="/city/:cityName" element={<CityVenues />} />
+          <Route
+            exact
+            path="/payment-success/:stripeToken"
+            element={<PaymentSuccess />}
+          />
           <Route path="/" element={<Modal />} />
         </Routes>
       </Router>

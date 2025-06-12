@@ -9,6 +9,7 @@ import { bindActionCreators } from "redux";
 import Login from "../Login/Login";
 import { DateTime } from "luxon";
 import swal from "sweetalert";
+import loadScript from "../../utilityFunctions/loadScript";
 
 const SingleFullVenue = (props) => {
   const { vid } = useParams();
@@ -48,7 +49,7 @@ const SingleFullVenue = (props) => {
   const changeCheckIn = (e) => setCheckIn(e.target.value);
   const changeCheckOut = (e) => setCheckOut(e.target.value);
 
-  const reserveNow = () => {
+  const reserveNow = async () => {
     console.log("Reserve clicked!");
     console.log("Guests:", numberOfGuests);
     console.log("Check-In:", checkIn);
@@ -77,6 +78,31 @@ const SingleFullVenue = (props) => {
 
     const pricePerNight = singleVenue.pricePerNight;
     const totalPrice = diffDays * pricePerNight;
+    const scriptUrl = "https://js.stripe.com/v3";
+    const stripePublickKey =
+      "pk_test_5198HtPL5CfCPYJ3X8TTrO06ChWxotTw6Sm2el4WkYdrfN5Rh7vEuVguXyPrTezvm3ntblRX8TpjAHeMQfHkEpTA600waD2fMrT";
+
+    // Loading Stripe Script
+    await loadScript(scriptUrl); // We dont need a variable, we just need to wait
+
+    const stripe = window.Stripe(stripePublickKey); // Invoking Stripe
+    const stripeSessionUrl = `${window.apiHost}/payment/create-session`;
+    const data = {
+      venueData: props.singleVenue,
+      totalPrice,
+      diffDays,
+      pricePerNight,
+      checkIn: props.checkIn,
+      checkOut: props.checkOut,
+      token: props.auth.token,
+      currency: "CAD",
+    };
+
+    const sessionVar = await axios.post(stripeSessionUrl, data);
+    // console.log(sessionVar);
+    stripe.redirectToCheckout({
+      sessionID: sessionVar.data.id,
+    });
 
     swal({
       title: `Total price: C$${totalPrice.toFixed(2)} for ${diffDays} night(s)`,
