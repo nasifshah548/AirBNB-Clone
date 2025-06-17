@@ -102,6 +102,8 @@ const SingleFullVenue = (props) => {
     // console.log(sessionVar);
     stripe.redirectToCheckout({
       sessionID: sessionVar.data.id,
+    }).then((response) => {
+      
     });
 
     swal({

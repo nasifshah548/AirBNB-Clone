@@ -12,12 +12,12 @@ import reduxPromise from "redux-promise";
 
 // Redux Persist Setup
 import { persistStore, persistReducer } from "redux-persist";
-import storage from "redux-persist/lib/storage"; // Defaults to localStorage for Web
+import storage from "redux-persist/lib/storage";
 import { PersistGate } from "redux-persist/integration/react";
 import autoMergeLevel2 from "redux-persist/lib/stateReconciler/autoMergeLevel2";
 
 const persistConfig = {
-  key: root,
+  key: "root", // ✅ FIXED: should be a string, not a variable
   storage,
   stateReconciler: autoMergeLevel2,
   blacklist: ["sitemodal"],
@@ -26,12 +26,14 @@ const persistConfig = {
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 const theStore = configureStore({
-  reducer: rootReducer,
+  reducer: persistedReducer, // ✅ FIXED: apply the persistedReducer here
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(reduxPromise),
-})(persistedReducer);
+    getDefaultMiddleware({ serializableCheck: false }).concat(reduxPromise),
+});
 
-const root = ReactDOM.createRoot(document.getElementById("root"));
+// ✅ Make sure this comes *after* the persist setup
+const container = document.getElementById("root");
+const root = ReactDOM.createRoot(container);
 const persistor = persistStore(theStore);
 
 root.render(

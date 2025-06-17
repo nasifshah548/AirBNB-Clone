@@ -25,11 +25,16 @@ class SearchBox extends Component {
     this.setState({ guests: e.target.value });
   };
 
+  submitSearch = (e) => {
+    e.preventDefault();
+    this.props.history.push(`/search/${this.props.where}`);
+  };
+
   render() {
     return (
       <div className="home-search-box col m4">
         <h1>Book unique places to stay and things to do.</h1>
-        <form className="search-box-form">
+        <form onSubmit={this.submitSearch} className="search-box-form">
           <div className="col m12">
             <div className="form-label">Where</div>
             <div className="input-field" id="where">
